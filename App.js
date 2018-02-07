@@ -1,63 +1,82 @@
-import React from 'react';
+import React from "react";
 import {
   StyleSheet,
   Text,
   View,
-  Button,
   TextInput,
+  Button,
   FlatList
-} from 'react-native';
+} from "react-native";
 
 export default class App extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      text: '',
-      todos: []
+      newtodo: {
+        text: "",
+        completed: false
+      },
+      todos: [],
+      count: 0
     };
   }
-
-  handleButtonPress = () => {
-    this.setState(prevState => {
-      let { text, todos } = prevState;
-      return {
-        text: '',
-        todos: [...todos, { key: text + todos.length, text /* completed */ }]
-      };
+  handleButtonPress = e => {
+    let newtoDo = this.state.newtodo;
+    newtoDo.key = this.state.newtodo.text + this.state.todos.length;
+    let todoarr = [...this.state.todos, newtoDo];
+    let newCount = this.state.count++;
+    this.setState({
+      newtodo: {
+        text: "",
+        completed: false
+      },
+      todos: todoarr
     });
-    console.log(this.state.todos);
   };
-
-  handleTextChange = text => {
-    this.setState({ text });
+  markCompleted = id => {
+    let todos = this.state.todos;
+    let newtodoarr = todos.filter(ele => ele.key !== id);
+    console.log(todos);
+    this.setState({
+      todos: newtodoarr
+    });
   };
-
+  handleTextChange = e => {
+    this.setState({
+      newtodo: {
+        text: e
+      }
+    });
+  };
   render() {
     return (
-      <View style={container}>
-        {this.state.todos.length === 0 ? (
-          <Text style={textFont}>You're free</Text>
-        ) : (
-          <Text style={textFont}>You got stuff to do!</Text>
-        )}
+      //same as style={container} if we have deconstructed
+      <View style={styles.container}>
+        <Text style={textFont}>Hello World!</Text>
         <TextInput
           onChangeText={this.handleTextChange}
-          value={this.state.text}
-          placeholder="Add Todo"
+          placeholder="Add Task"
+          value={this.state.newtodo.text}
         />
         <Button onPress={() => this.handleButtonPress()} title="Add Todo" />
-        <FlatList
-          data={this.state.todos}
-          renderItem={({ item, key }) => {
-            return (
-              <View key={item.key}>
-                <Text style={/* fill this in with a dynamic style*/ null}>
-                  {item.text}
-                </Text>
-              </View>
-            );
-          }}
-        />
+        {this.state.todos.length === 0 ? (
+          <Text style={textFont}>You are free</Text>
+        ) : (
+          <FlatList
+            data={this.state.todos}
+            renderItem={({ item }) => {
+              return (
+                <View key={item.key}>
+                  <Text style={textFont}>{item.text}</Text>
+                  <Button
+                    onPress={this.markCompleted(item.key)}
+                    title="Delete"
+                  />
+                </View>
+              );
+            }}
+          />
+        )}
       </View>
     );
   }
@@ -66,10 +85,9 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 33
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
   },
   textFont: {
     fontSize: 28
